@@ -8,6 +8,22 @@ import org.junit.Test;
 
 public class ExifFieldTypeTest {
 
+    @Test
+    public void testStringDeserialization() {
+        assertSame("bla", ExifFieldType.STRING.getDeserializer().apply("bla"));
+        assertEquals(null, ExifFieldType.STRING.getDeserializer().apply(null));
+        assertEquals(null, ExifFieldType.STRING.getDeserializer().apply(""));
+        assertEquals(null, ExifFieldType.STRING.getDeserializer().apply("   "));
+    }
+
+    @Test
+    public void testStringSerialization() {
+        assertSame("bla", ExifFieldType.STRING.getSerializer().apply("bla"));
+        assertEquals("", ExifFieldType.STRING.getSerializer().apply(null));
+        assertEquals("", ExifFieldType.STRING.getSerializer().apply(""));
+        assertEquals("", ExifFieldType.STRING.getSerializer().apply("   "));
+    }
+    
     @Test(expected = IllegalArgumentException.class)
     public void testThreeDigitIntegerSerializationValueTooLow() {
         ExifFieldType.THREE_DIGIT_INTEGER.getSerializer().apply(-1);
@@ -20,7 +36,7 @@ public class ExifFieldTypeTest {
 
     @Test
     public void testThreeDigitIntegerSerialization() {
-        assertEquals(null, ExifFieldType.THREE_DIGIT_INTEGER.getSerializer().apply(null));
+        assertEquals("", ExifFieldType.THREE_DIGIT_INTEGER.getSerializer().apply(null));
         assertEquals("000", ExifFieldType.THREE_DIGIT_INTEGER.getSerializer().apply(0));
         assertEquals("001", ExifFieldType.THREE_DIGIT_INTEGER.getSerializer().apply(1));
         assertEquals("012", ExifFieldType.THREE_DIGIT_INTEGER.getSerializer().apply(12));
@@ -59,18 +75,8 @@ public class ExifFieldTypeTest {
     }
 
     @Test
-    public void testStringDeserialization() {
-        assertSame("bla", ExifFieldType.STRING.getDeserializer().apply("bla"));
-    }
-
-    @Test
-    public void testStringSerialization() {
-        assertSame("bla", ExifFieldType.STRING.getSerializer().apply("bla"));
-    }
-    
-    @Test
     public void testDatetimeSerialization() {
-        assertEquals(null, ExifFieldType.DATETIME.getSerializer().apply(null));
+        assertEquals("", ExifFieldType.DATETIME.getSerializer().apply(null));
         assertEquals("2018:12:24 21:55:53", ExifFieldType.DATETIME.getSerializer().apply(LocalDateTime.of(2018, 12, 24, 21, 55, 53)));
     }
 

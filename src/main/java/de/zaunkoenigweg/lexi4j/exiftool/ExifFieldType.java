@@ -19,7 +19,7 @@ class ExifFieldType<T> {
     private static final DateTimeFormatter EXIF_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
     
     static ExifFieldType<Integer> THREE_DIGIT_INTEGER = new ExifFieldType<>(ExifFieldType::deserializeTreeDigitInteger, ExifFieldType::serializeTreeDigitInteger);
-    static ExifFieldType<String> STRING = new ExifFieldType<>(Function.identity(), Function.identity());
+    static ExifFieldType<String> STRING = new ExifFieldType<>(ExifFieldType::deserializeString, ExifFieldType::serializeString);
     static ExifFieldType<LocalDateTime> DATETIME = new ExifFieldType<>(ExifFieldType::deserializeDatetime, ExifFieldType::serializeDatetime);
 
     /**
@@ -47,9 +47,23 @@ class ExifFieldType<T> {
         return serializer;
     }
     
+    private static String serializeString(String in) {
+        if(in==null) {
+            return "";
+        }
+        return in.trim();
+    }
+
+    private static String deserializeString(String in) {
+        if(StringUtils.isBlank(in)) {
+            return null;
+        }
+        return in.trim();
+    }
+
     private static String serializeTreeDigitInteger(Integer in) {
         if(in==null) {
-            return null;
+            return "";
         }
         if(in < 0 || in > 999) {
             throw new IllegalArgumentException(String.format("%d must be between 0 and 999.", in));
@@ -73,7 +87,7 @@ class ExifFieldType<T> {
 
     private static String serializeDatetime(LocalDateTime in) {
         if(in==null) {
-            return null;
+            return "";
         }
         return EXIF_DATE_TIME_FORMATTER.format(in);
     }
