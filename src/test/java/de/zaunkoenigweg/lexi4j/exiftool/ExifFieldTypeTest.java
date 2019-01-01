@@ -91,7 +91,5 @@ public class ExifFieldTypeTest {
     public void testDatetimeDeserializationInvalidValue() {
         ExifFieldType.DATETIME.getDeserializer().apply("something");
     }
-
-    
     
 }

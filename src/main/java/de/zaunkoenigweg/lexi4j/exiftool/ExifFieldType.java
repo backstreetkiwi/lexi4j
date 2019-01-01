@@ -47,6 +47,19 @@ class ExifFieldType<T> {
         return serializer;
     }
     
+    static ExifFieldType<?> byKey(String key) {
+        switch (key) {
+        case "STRING":
+            return STRING;
+        case "DATETIME":
+            return DATETIME;
+        case "THREE_DIGIT_INTEGER":
+            return THREE_DIGIT_INTEGER;
+        default:
+            throw new IndexOutOfBoundsException(String.format("Unknown key for ExifFieldType: '%s'", key));
+        }
+    }
+    
     private static String serializeString(String in) {
         if(in==null) {
             return "";
