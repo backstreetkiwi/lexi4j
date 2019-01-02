@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Exif Data 
@@ -15,50 +16,62 @@ import java.util.stream.Collectors;
  */
 public class ExifData {
 
-    @ExifField(exiftoolParam="imageDescription", exifKey="Image Description", exifFieldType="STRING")
+    @ExifMapping(exifField = ExifField.IMAGE_DESCRIPTION)
     private Optional<String> imageDescription = Optional.empty();
     
-    @ExifField(exiftoolParam="dateTimeOriginal", exifKey="Date/Time Original", exifFieldType="DATETIME")
+    @ExifMapping(exifField = ExifField.DATETIME_ORIGINAL)
     private Optional<LocalDateTime> dateTimeOriginal = Optional.empty();
 
-    @ExifField(exiftoolParam="subSecTimeOriginal", exifKey="Sub Sec Time Original", exifFieldType="THREE_DIGIT_INTEGER")
+    @ExifMapping(exifField = ExifField.SUBSEC_TIME_ORIGINAL)
     private Optional<Integer> subsecTimeOriginal = Optional.empty();
 
-    @ExifField(exiftoolParam="make", exifKey="Make", exifFieldType="STRING")
+    @ExifMapping(exifField = ExifField.CAMERA_MAKE)
     private Optional<String> cameraMake = Optional.empty();
 
-    @ExifField(exiftoolParam="model", exifKey="Camera Model Name", exifFieldType="STRING")
+    @ExifMapping(exifField = ExifField.CAMERA_MODEL)
     private Optional<String> cameraModel = Optional.empty();
     
-    @ExifField(exiftoolParam="userComment", exifKey="User Comment", exifFieldType="STRING")
+    @ExifMapping(exifField = ExifField.USER_COMMENT)
     private Optional<String> userComment = Optional.empty();
     
-    static ExifData read(Map<String, String> rawExif) {
-        Map<String, Field> exifKeyToFieldMap = Arrays.asList(ExifData.class.getDeclaredFields()).stream()
-            .filter(f -> f.isAnnotationPresent(ExifField.class))
-            .collect(Collectors.toMap((Field field) -> {
-                return ((ExifField)field.getAnnotation(ExifField.class)).exifKey();
-            }, Function.identity()));
+    /**
+     * Mapping of Exif fields to fields of this class.
+     */
+    private static Map<ExifField, Field> mappedFields = Arrays.asList(ExifData.class.getDeclaredFields()).stream()
+                    .filter(f -> f.isAnnotationPresent(ExifMapping.class))
+                    .collect(Collectors.toMap((Field field) -> {
+                        return ((ExifMapping) field.getAnnotation(ExifMapping.class)).exifField();
+                    }, Function.identity()));
+    
+    /**
+     * Reads the Exif Data from a String-based map and produces an {@link ExifData} object.
+     * @param rawExif raw map from exiftool
+     * @return Exif Data object
+     */
+    static ExifData of(Map<String, String> rawExif) {
         
         ExifData exifData = new ExifData();
         
-        rawExif.keySet().stream()
-            .filter(exifKeyToFieldMap::containsKey)
-            .forEach(key -> {
-                Field field = exifKeyToFieldMap.get(key);
-                ExifField exifField = (ExifField)(field.getAnnotation(ExifField.class));
-                ExifFieldType<?> exifFieldType = ExifFieldType.byKey(exifField.exifFieldType());
+        mappedFields.keySet().stream()
+            .filter(exifField -> rawExif.containsKey(exifField.getExifKey()))
+            .forEach(exifField -> {
+                Field field = mappedFields.get(exifField);
+                ExifMapping exifMapping = (ExifMapping)(field.getAnnotation(ExifMapping.class));
                 try {
-                    Object deserializedValue = exifFieldType.getDeserializer().apply(rawExif.get(key));
+                    Object deserializedValue = exifMapping.exifField().getExifFieldType().getDeserializer().apply(rawExif.get(exifField.getExifKey()));
                     field.set(exifData, Optional.ofNullable(deserializedValue));
                 } catch(IllegalAccessException | IllegalArgumentException e) {
                     // value stays empty
                 }
             });
-
+        
         return exifData;
     }
 
+    static Stream<String> exiftoolParams() {
+        return mappedFields.keySet().stream().map(ExifField::getExiftoolParam);
+    }
+    
     public Optional<String> getImageDescription() {
         return imageDescription;
     }

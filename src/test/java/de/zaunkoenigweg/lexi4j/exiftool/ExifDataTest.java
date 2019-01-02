@@ -18,7 +18,7 @@ public class ExifDataTest {
         rawExif.put("Make", "Nikon");
         rawExif.put("Camera Model Name", "Nikon D70");
         rawExif.put("User Comment", "the user comment");
-        ExifData exifData = ExifData.read(rawExif);
+        ExifData exifData = ExifData.of(rawExif);
         assertNotNull(exifData);
         assertTrue(exifData.getImageDescription().isPresent());
         assertEquals("the image description", exifData.getImageDescription().get());
