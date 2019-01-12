@@ -15,9 +15,10 @@ public class ExiftoolTest {
     
     @Test
     public void testReadPaths() {
-        File file = new File(getClass().getResource("/exiftool/NikonD60.jpg").getFile());
+        File file = new File(getClass().getResource("/exiftool/NikonD70.jpg").getFile());
         Map<File, ExifData> exifDataMap = Exiftool.readPaths(file.getAbsolutePath());
         assertNotNull(exifDataMap);
+        assertEquals(1, exifDataMap.size());
         assertTrue(exifDataMap.containsKey(file));
         ExifData exifData = exifDataMap.get(file);
         assertTrue(exifData.getCameraMake().isPresent());

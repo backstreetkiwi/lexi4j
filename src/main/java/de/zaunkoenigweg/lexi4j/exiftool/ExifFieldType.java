@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Exif Fields that can be used via the Linux exiftool.
  * 
- * An Exif Field has a Type T that can be serialized to a String or deserialized from a String.
+ * An Exif Field has a type T that can be serialized to a String or deserialized from a String.
  * 
  * @author mail@nikolaus-winter.de
  */
@@ -34,7 +34,7 @@ class ExifFieldType<T> {
      */
     private Function<T, String> serializer;
     
-    ExifFieldType(Function<String, T> deserializer, Function<T, String> serializer) {
+    private ExifFieldType(Function<String, T> deserializer, Function<T, String> serializer) {
         this.deserializer = deserializer;
         this.serializer = serializer;
     }
@@ -59,6 +59,8 @@ class ExifFieldType<T> {
             throw new IndexOutOfBoundsException(String.format("Unknown key for ExifFieldType: '%s'", key));
         }
     }
+    
+    // serializers / deserializers
     
     private static String serializeString(String in) {
         if(in==null) {

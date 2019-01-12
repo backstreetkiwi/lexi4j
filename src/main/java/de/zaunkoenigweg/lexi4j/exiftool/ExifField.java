@@ -16,7 +16,7 @@ public enum ExifField {
     }
 
     /**
-     * Param that must be set as param when calling the Linux exiftool.
+     * Param that must be set when calling the Linux exiftool.
      */
     private String exiftoolParam;
     
@@ -41,6 +41,5 @@ public enum ExifField {
     ExifFieldType<?> getExifFieldType() {
         return exifFieldType;
     }
-
     
 }
