@@ -23,7 +23,29 @@ public class Exiftool {
     private static final Pattern KEY_VALUE_LINE_PATTERN = Pattern.compile("^([^:]+)\\s*:\\s(.+)$");
     private static final Pattern SEPARATOR = Pattern.compile("^========.*$");
 
-    // TODO Wrap method for single file usage
+    /**
+     * Reads EXIF metadata for the given file.
+     * 
+     * @param file Image file.
+     * 
+     * @return EXIF data (optional)
+     */
+    public static Optional<ExifData> read(File file) {
+        if(file==null || !file.exists() || file.isDirectory()) {
+            return Optional.empty();
+        }
+        Map<File, ExifData> exifDataMap;
+        try {
+            exifDataMap = readPaths(file.getAbsolutePath());
+        }
+        catch(IllegalStateException e) {
+            return Optional.empty();
+        }
+        if(!exifDataMap.containsKey(file)) {
+            return Optional.empty();
+        }
+        return Optional.of(exifDataMap.get(file));
+    }
     
     /**
      * Reads EXIF metadata from all mediafiles in the given path (pattern).
@@ -57,17 +79,20 @@ public class Exiftool {
         
         for (String line : result.getRight()) {
             Matcher separatorMatcher = SEPARATOR.matcher(line);
-            if (separatorMatcher.matches()) {
+            if (separatorMatcher.matches() && !currentFile.isEmpty()) {
                 intermediateData.add(currentFile);
                 currentFile = new HashMap<>();
             } else {
-                Optional<Pair<String, String>> parsedLine = parseLine(line);
+                Optional<Pair<String, String>> parsedLine = parseKeyValueLine(line);
                 if(parsedLine.isPresent()) {
                     currentFile.put(parsedLine.get().getKey(), parsedLine.get().getValue());
                 }
             }
         }
-        intermediateData.add(currentFile);
+        
+        if(!currentFile.isEmpty()) {
+            intermediateData.add(currentFile);
+        }
         
         Function<Map<String,String>, File> keyMapper = rawExifMap -> 
             new File(new File(rawExifMap.get("Directory")), rawExifMap.get("File Name"));
@@ -91,7 +116,7 @@ public class Exiftool {
         }
     }
 
-    private static Optional<Pair<String, String>> parseLine(String line) {
+    private static Optional<Pair<String, String>> parseKeyValueLine(String line) {
         Matcher matcher = KEY_VALUE_LINE_PATTERN.matcher(line);
         if (!matcher.matches()) {
             return Optional.empty();
