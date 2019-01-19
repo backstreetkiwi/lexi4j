@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 /**
  * Exif Data 
  * 
+ * As this lib is just a facade to the technical layer, all fields are {@link Optional} and there
+ * is no semantic validation whatsoever.
+ * 
  * @author mail@nikolaus-winter.de
  */
 public class ExifData {

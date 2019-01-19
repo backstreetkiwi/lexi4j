@@ -99,6 +99,39 @@ public class Exiftool {
         
         return intermediateData.stream().collect(Collectors.toMap(keyMapper, ExifData::of));
     }
+    
+    public static ExifDataUpdate update(File file) {
+        return new Update(file);
+    }
+    
+    private static class Update extends ExifDataUpdate {
+
+        private File file;
+        
+        private Update(File file) {
+            this.file = file;
+        }
+        
+        @Override
+        public void perform() {
+            String params = this.updateValues.entrySet().stream()
+                            .map(entry -> String.format("-%s=\"%s\"", entry.getKey().getExiftoolParam(), StringUtils.replace(entry.getValue(), "\"", "\\\"")))
+                            .collect(Collectors.joining(" "));
+
+            params = "-overwrite_original " + params;
+
+            Pair<Integer, List<String>> result = callExiftool(params, file.getAbsolutePath());
+
+            if (0 != result.getLeft()) {
+                String message = String.format("call of exiftool not successful (%d)", result.getLeft());
+                if (result.getRight() != null) {
+                    message += "\n" + result.getRight().stream().collect(Collectors.joining("\n"));
+                }
+                throw new IllegalStateException(message);
+            }
+        }
+        
+    }
 
     private static Pair<Integer, List<String>> callExiftool(String params, String path) {
         try {

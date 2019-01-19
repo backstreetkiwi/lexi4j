@@ -5,7 +5,10 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -108,6 +111,37 @@ public class ExiftoolTest {
         assertEquals("Apple", exifData.getCameraMake().get());
         assertTrue(exifData.getCameraModel().isPresent());
         assertEquals("iPhone 5s", exifData.getCameraModel().get());
+    }
+
+    @Test
+    public void testUpdateFile() throws IOException {
+        File fileSource = new File(getClass().getResource("/exiftool/NikonD70.jpg").getFile());
+        File file = new File(someEmptyFolder, "ImageWithDescription.jpg");
+        Files.copy(fileSource.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        
+        String imageDescription = "new-image-description";
+        LocalDateTime dateTimeOriginal = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        Integer subsecTimeOriginal = 13;
+        String cameraModel = "new-camera-model";
+        String cameraMake = "new-camera-make";
+        String userComment = "new-user-comment";
+        Exiftool.update(file)
+            .withImageDescription(imageDescription)
+            .withDateTimeOriginal(dateTimeOriginal)
+            .withSubsecTimeOriginal(subsecTimeOriginal)
+            .withCameraMake(cameraMake)
+            .withCameraModel(cameraModel)
+            .withUserComment(userComment)
+            .perform();
+
+        Optional<ExifData> exifData = Exiftool.read(file);
+        assertTrue(exifData.isPresent());
+        assertEquals(imageDescription, exifData.get().getImageDescription().get());
+        assertEquals(dateTimeOriginal, exifData.get().getDateTimeOriginal().get());
+        assertEquals(subsecTimeOriginal, exifData.get().getSubsecTimeOriginal().get());
+        assertEquals(cameraMake, exifData.get().getCameraMake().get());
+        assertEquals(cameraModel, exifData.get().getCameraModel().get());
+        assertEquals(userComment, exifData.get().getUserComment().get());
     }
 
 }
