@@ -1,6 +1,9 @@
 package de.zaunkoenigweg.lexi4j.exiftool;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,31 +19,34 @@ import org.junit.Test;
 
 public class ExiftoolTest {
 
+    private Exiftool exiftool;
+    
     private File someEmptyFolder;
     
     @Before
     public void setUp() throws IOException {
         someEmptyFolder = Files.createTempDirectory("someEmptyFolder").toFile();
         someEmptyFolder.deleteOnExit();
+        exiftool = new Exiftool();
     }
     
     @Test
     public void testReadOneFileNull() {
-        Optional<ExifData> exifData = Exiftool.read(null);
+        Optional<ExifData> exifData = exiftool.read(null);
         assertNotNull(exifData);
         assertFalse(exifData.isPresent());
     }
 
     @Test
     public void testReadOneFileThatDoesNotExist() {
-        Optional<ExifData> exifData = Exiftool.read(new File(someEmptyFolder, "noimage.jpg"));
+        Optional<ExifData> exifData = exiftool.read(new File(someEmptyFolder, "noimage.jpg"));
         assertNotNull(exifData);
         assertFalse(exifData.isPresent());
     }
 
     @Test
     public void testReadOneFileThatIsNoImage() {
-        Optional<ExifData> exifData = Exiftool.read(new File(getClass().getResource("/exiftool/noimage").getPath()));
+        Optional<ExifData> exifData = exiftool.read(new File(getClass().getResource("/exiftool/noimage").getPath()));
         assertNotNull(exifData);
         assertFalse(exifData.isPresent());
     }
@@ -50,7 +55,7 @@ public class ExiftoolTest {
     public void testReadOneFile() {
         File iPhone5sFile = new File(getClass().getResource("/exiftool/NikonD70.jpg").getPath());
         
-        Optional<ExifData> exifData = Exiftool.read(iPhone5sFile);
+        Optional<ExifData> exifData = exiftool.read(iPhone5sFile);
         assertTrue(exifData.isPresent());
         assertTrue(exifData.get().getDateTimeOriginal().isPresent());
         assertEquals(LocalDateTime.of(2005,2,22,13,51,32), exifData.get().getDateTimeOriginal().get());
@@ -67,7 +72,7 @@ public class ExiftoolTest {
 
     @Test
     public void testEmptyFolder() {
-        Map<File, ExifData> exifDataMap = Exiftool.readPaths(someEmptyFolder.getAbsolutePath());
+        Map<File, ExifData> exifDataMap = exiftool.readPaths(someEmptyFolder.getAbsolutePath());
         assertNotNull(exifDataMap);
         assertEquals(0, exifDataMap.size());
     }
@@ -78,7 +83,7 @@ public class ExiftoolTest {
         File iPhone5sFile = new File(getClass().getResource("/exiftool/iPhone5s.jpg").getPath());
         File nikonD70File = new File(getClass().getResource("/exiftool/NikonD70.jpg").getPath());
         
-        Map<File, ExifData> exifDataMap = Exiftool.readPaths(exampleFolder.getAbsolutePath());
+        Map<File, ExifData> exifDataMap = exiftool.readPaths(exampleFolder.getAbsolutePath());
         assertNotNull(exifDataMap);
         assertEquals(2, exifDataMap.size());
         assertTrue(exifDataMap.containsKey(iPhone5sFile));
@@ -101,7 +106,7 @@ public class ExiftoolTest {
     public void testReadOneFileViaPathsMethod() {
         File iPhone5sFile = new File(getClass().getResource("/exiftool/iPhone5s.jpg").getPath());
         
-        Map<File, ExifData> exifDataMap = Exiftool.readPaths(iPhone5sFile.getAbsolutePath());
+        Map<File, ExifData> exifDataMap = exiftool.readPaths(iPhone5sFile.getAbsolutePath());
         assertNotNull(exifDataMap);
         assertEquals(1, exifDataMap.size());
         assertTrue(exifDataMap.containsKey(iPhone5sFile));
@@ -125,7 +130,7 @@ public class ExiftoolTest {
         String cameraModel = "new-camera-model";
         String cameraMake = "new-camera-make";
         String userComment = "new-user-comment";
-        Exiftool.update(file)
+        exiftool.update(file)
             .withImageDescription(imageDescription)
             .withDateTimeOriginal(dateTimeOriginal)
             .withSubsecTimeOriginal(subsecTimeOriginal)
@@ -134,7 +139,7 @@ public class ExiftoolTest {
             .withUserComment(userComment)
             .perform();
 
-        Optional<ExifData> exifData = Exiftool.read(file);
+        Optional<ExifData> exifData = exiftool.read(file);
         assertTrue(exifData.isPresent());
         assertEquals(imageDescription, exifData.get().getImageDescription().get());
         assertEquals(dateTimeOriginal, exifData.get().getDateTimeOriginal().get());

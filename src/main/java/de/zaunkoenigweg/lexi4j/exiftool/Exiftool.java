@@ -30,7 +30,7 @@ public class Exiftool {
      * 
      * @return EXIF data (optional)
      */
-    public static Optional<ExifData> read(File file) {
+    public Optional<ExifData> read(File file) {
         if(file==null || !file.exists() || file.isDirectory()) {
             return Optional.empty();
         }
@@ -54,7 +54,7 @@ public class Exiftool {
      * 
      * @return Map of Files/ExifData.
      */
-    public static Map<File, ExifData> readPaths(String pathPattern) {
+    public Map<File, ExifData> readPaths(String pathPattern) {
         if (StringUtils.isBlank(pathPattern)) {
             throw new IllegalArgumentException("missing argument 'pathPattern'");
         }
@@ -100,11 +100,11 @@ public class Exiftool {
         return intermediateData.stream().collect(Collectors.toMap(keyMapper, ExifData::of));
     }
     
-    public static ExifDataUpdate update(File file) {
+    public ExifDataUpdate update(File file) {
         return new Update(file);
     }
     
-    private static class Update extends ExifDataUpdate {
+    private class Update extends ExifDataUpdate {
 
         private File file;
         
