@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -72,9 +71,7 @@ public class ExiftoolTest {
 
     @Test
     public void testEmptyFolder() {
-        Map<File, ExifData> exifDataMap = exiftool.readPaths(someEmptyFolder.getAbsolutePath());
-        assertNotNull(exifDataMap);
-        assertEquals(0, exifDataMap.size());
+        exiftool.fillCache(someEmptyFolder.getAbsolutePath());
     }
 
     @Test
@@ -83,39 +80,20 @@ public class ExiftoolTest {
         File iPhone5sFile = new File(getClass().getResource("/exiftool/iPhone5s.jpg").getPath());
         File nikonD70File = new File(getClass().getResource("/exiftool/NikonD70.jpg").getPath());
         
-        Map<File, ExifData> exifDataMap = exiftool.readPaths(exampleFolder.getAbsolutePath());
-        assertNotNull(exifDataMap);
-        assertEquals(2, exifDataMap.size());
-        assertTrue(exifDataMap.containsKey(iPhone5sFile));
-        assertTrue(exifDataMap.containsKey(nikonD70File));
+        exiftool.fillCache(exampleFolder.getAbsolutePath());
         
-        ExifData exifData = exifDataMap.get(iPhone5sFile);
-        assertTrue(exifData.getCameraMake().isPresent());
-        assertEquals("Apple", exifData.getCameraMake().get());
-        assertTrue(exifData.getCameraModel().isPresent());
-        assertEquals("iPhone 5s", exifData.getCameraModel().get());
+        Optional<ExifData> exifData = this.exiftool.read(iPhone5sFile);
+        assertTrue(exifData.isPresent());
+        assertTrue(exifData.get().getCameraMake().isPresent());
+        assertEquals("Apple", exifData.get().getCameraMake().get());
+        assertTrue(exifData.get().getCameraModel().isPresent());
+        assertEquals("iPhone 5s", exifData.get().getCameraModel().get());
         
-        exifData = exifDataMap.get(nikonD70File);
-        assertTrue(exifData.getCameraMake().isPresent());
-        assertEquals("NIKON CORPORATION", exifData.getCameraMake().get());
-        assertTrue(exifData.getCameraModel().isPresent());
-        assertEquals("NIKON D70", exifData.getCameraModel().get());
-    }
-
-    @Test
-    public void testReadOneFileViaPathsMethod() {
-        File iPhone5sFile = new File(getClass().getResource("/exiftool/iPhone5s.jpg").getPath());
-        
-        Map<File, ExifData> exifDataMap = exiftool.readPaths(iPhone5sFile.getAbsolutePath());
-        assertNotNull(exifDataMap);
-        assertEquals(1, exifDataMap.size());
-        assertTrue(exifDataMap.containsKey(iPhone5sFile));
-        
-        ExifData exifData = exifDataMap.get(iPhone5sFile);
-        assertTrue(exifData.getCameraMake().isPresent());
-        assertEquals("Apple", exifData.getCameraMake().get());
-        assertTrue(exifData.getCameraModel().isPresent());
-        assertEquals("iPhone 5s", exifData.getCameraModel().get());
+        exifData = this.exiftool.read(nikonD70File);
+        assertTrue(exifData.get().getCameraMake().isPresent());
+        assertEquals("NIKON CORPORATION", exifData.get().getCameraMake().get());
+        assertTrue(exifData.get().getCameraModel().isPresent());
+        assertEquals("NIKON D70", exifData.get().getCameraModel().get());
     }
 
     @Test

@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,6 +22,12 @@ public class Exiftool {
     private static final Pattern KEY_VALUE_LINE_PATTERN = Pattern.compile("^([^:]+)\\s*:\\s(.+)$");
     private static final Pattern SEPARATOR = Pattern.compile("^========.*$");
 
+    Map<File,ExifData> cache;
+    
+    public Exiftool() {
+        this.cache = new HashMap<>();
+    }
+    
     /**
      * Reads EXIF metadata for the given file.
      * 
@@ -34,27 +39,31 @@ public class Exiftool {
         if(file==null || !file.exists() || file.isDirectory()) {
             return Optional.empty();
         }
-        Map<File, ExifData> exifDataMap;
+        
+        ExifData cachedExifData = this.cache.get(file);
+        if(cachedExifData!=null) {
+            return Optional.of(cachedExifData);
+        }
         try {
-            exifDataMap = readPaths(file.getAbsolutePath());
+            fillCache(file.getAbsolutePath());
         }
         catch(IllegalStateException e) {
             return Optional.empty();
         }
-        if(!exifDataMap.containsKey(file)) {
-            return Optional.empty();
-        }
-        return Optional.of(exifDataMap.get(file));
+        return Optional.of(this.cache.get(file));
     }
     
     /**
-     * Reads EXIF metadata from all mediafiles in the given path (pattern).
+     * Reads EXIF metadata from all mediafiles in the given path (pattern) and puts them into the cache.
+     * 
+     * This method forces a call of the underlying exiftool binary and does not read from cache.
+     * The returned values will be cached though.
      * 
      * @param pathPattern Path pattern, passed to exiftool 'as is'.
      * 
      * @return Map of Files/ExifData.
      */
-    public Map<File, ExifData> readPaths(String pathPattern) {
+    public void fillCache(String pathPattern) {
         if (StringUtils.isBlank(pathPattern)) {
             throw new IllegalArgumentException("missing argument 'pathPattern'");
         }
@@ -94,10 +103,11 @@ public class Exiftool {
             intermediateData.add(currentFile);
         }
         
-        Function<Map<String,String>, File> keyMapper = rawExifMap -> 
-            new File(new File(rawExifMap.get("Directory")), rawExifMap.get("File Name"));
-        
-        return intermediateData.stream().collect(Collectors.toMap(keyMapper, ExifData::of));
+        synchronized (this.cache) {
+            intermediateData.stream().forEach(rawExifData -> {
+                this.cache.put(new File(new File(rawExifData.get("Directory")), rawExifData.get("File Name")), ExifData.of(rawExifData));
+            });
+        }
     }
     
     public ExifDataUpdate update(File file) {
@@ -129,6 +139,7 @@ public class Exiftool {
                 }
                 throw new IllegalStateException(message);
             }
+            Exiftool.this.cache.remove(this.file);
         }
         
     }
