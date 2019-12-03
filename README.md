@@ -10,4 +10,11 @@ In a small project to archive digital images, I used [Apache Commons Imaging][co
 
 As I am used to smart little Linux tools like **`exiftool`** I decided to switch to using them. As I wanted to have some caching, I came up with the idea of wrapping it in a Java lib. Let's go...
 
+## Build
+As the library relies on certain Linux command line tools, its tests use these tools. To allow for testing, the Maven build should be executed in a container that has these tools installed. Use
+
+    build.sh
+
+to run the build inside Docker.
+
 [commons-imaging]: https://commons.apache.org/proper/commons-imaging/
