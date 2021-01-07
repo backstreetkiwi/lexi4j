@@ -1,3 +1,5 @@
+[![Build Actions Status](https://github.com/backstreetkiwi/lexi4j/workflows/mavenbuild/badge.svg)](https://github.com/backstreetkiwi/lexi4j/actions)
+
 # lexi4j
 Wrapping Linux EXIF tools in Java
 
@@ -9,13 +11,5 @@ In a small project to archive digital images, I used [Apache Commons Imaging][co
 * I once had a major f***-up in my digital image archive (I was able to restore it thanks to a good backup strategy). I guess it was rather my fault than the library's, but it was really hard to figure out what went wrong. Long story short, it had to do with encoding...
 
 As I am used to smart little Linux tools like **`exiftool`** I decided to switch to using them. As I wanted to have some caching, I came up with the idea of wrapping it in a Java lib. Let's go...
-
-## Build
-The build is planned to be done via GitHub Actions
-As the library relies on certain Linux command line tools, its tests use these tools. To allow for testing, the Maven build should be executed in a container that has these tools installed. Use
-
-    build.sh
-
-to run the build inside Docker.
 
 [commons-imaging]: https://commons.apache.org/proper/commons-imaging/
