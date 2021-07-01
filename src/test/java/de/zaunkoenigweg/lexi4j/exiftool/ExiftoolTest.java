@@ -44,19 +44,6 @@ public class ExiftoolTest {
     }
 
     @Test
-    public void testReadOneFileThatIsNoImage() {
-        Optional<ExifData> exifData = exiftool.read(new File(getClass().getResource("/exiftool/noimage").getPath()));
-        assertNotNull(exifData);
-        assertTrue(exifData.isPresent());
-        assertTrue(exifData.get().getCameraMake().isEmpty());
-        assertTrue(exifData.get().getCameraModel().isEmpty());
-        assertTrue(exifData.get().getDateTimeOriginal().isEmpty());
-        assertTrue(exifData.get().getImageDescription().isEmpty());
-        assertTrue(exifData.get().getSubsecTimeOriginal().isEmpty());
-        assertTrue(exifData.get().getUserComment().isEmpty());
-    }
-
-    @Test
     public void testReadOneFile() {
         File iPhone5sFile = new File(getClass().getResource("/exiftool/NikonD70.jpg").getPath());
         

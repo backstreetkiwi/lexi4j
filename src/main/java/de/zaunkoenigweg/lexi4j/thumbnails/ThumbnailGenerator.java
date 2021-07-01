@@ -57,7 +57,7 @@ public class ThumbnailGenerator {
         }
         try {
             ProcessBuilder builder = new ProcessBuilder();
-            String command = String.format("ffmpeg -y -i %s -vf scale=-1:%d %s", source, height, target);
+            String command = String.format("convert %s -auto-orient -resize x%d\\> %s", source, height, target);
             builder.command("sh", "-c", command);
             builder.redirectErrorStream(true);
             Process process = builder.start();
@@ -65,10 +65,10 @@ public class ThumbnailGenerator {
             String output = IOUtils.readLines(inputStream, StandardCharsets.UTF_8).stream().collect(Collectors.joining("\n"));
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new ThumbnailGeneratorException(String.format("ffmpeg exited with code %d:%n%n%s%n", exitCode, output));
+                throw new ThumbnailGeneratorException(String.format("imagemagick exited with code %d:%n%n%s%n", exitCode, output));
             }
         } catch (IOException | InterruptedException e) {
-            throw new ThumbnailGeneratorException("System call to ffmpeg failed", e);
+            throw new ThumbnailGeneratorException("System call to imagemagick failed", e);
         }
         if (!target.exists()) {
             throw new ThumbnailGeneratorException("No thumbnail was generated for unknown reasons.");

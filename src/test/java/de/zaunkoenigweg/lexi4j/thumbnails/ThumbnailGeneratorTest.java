@@ -76,9 +76,18 @@ public class ThumbnailGeneratorTest {
     }
 
     @Test
-    public void testGenerateThumbnailForImage() throws ThumbnailGeneratorException {
+    public void testGenerateThumbnailForImageLandscape() throws ThumbnailGeneratorException {
         File source = new File(baseFolder, "NikonD70.jpg");
-        File target = new File(baseFolder, "thumbnail.jpg");
+        File target = new File(baseFolder, "thumbnail_landscape.jpg");
+        assertFalse(target.exists());
+        ThumbnailGenerator.generateThumbnailFromImage(source, target, 300);
+        assertTrue(target.exists());
+    }
+
+    @Test
+    public void testGenerateThumbnailForImagePortrait() throws ThumbnailGeneratorException {
+        File source = new File(baseFolder, "iPhone5s.jpg");
+        File target = new File(baseFolder, "thumbnail_portrait.jpg");
         assertFalse(target.exists());
         ThumbnailGenerator.generateThumbnailFromImage(source, target, 300);
         assertTrue(target.exists());

@@ -6,5 +6,6 @@ RUN apt-get update
 RUN apt-get install -y apt-transport-https
 RUN apt-get install -y libimage-exiftool-perl
 RUN apt-get install -y ffmpeg
+RUN apt-get install -y imagemagick
 
 
