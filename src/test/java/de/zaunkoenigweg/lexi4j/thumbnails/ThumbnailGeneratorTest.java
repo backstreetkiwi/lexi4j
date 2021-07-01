@@ -34,4 +34,31 @@ public class ThumbnailGeneratorTest {
     	assertTrue(target.exists());
     }
 
+    @Test
+    public void testGenerateThumbnailForMp4() throws ThumbnailGeneratorException {
+    	File source = new File(baseFolder, "mp4.mp4"); 
+    	File target = new File(baseFolder, "mp4.jpg"); 
+    	assertFalse(target.exists());
+    	ThumbnailGenerator.generateThumbnailFromVideo(source, target, 300);
+    	assertTrue(target.exists());
+    }
+
+    @Test
+    public void testGenerateThumbnailForAvi() throws ThumbnailGeneratorException {
+    	File source = new File(baseFolder, "avi.avi"); 
+    	File target = new File(baseFolder, "avi.jpg"); 
+    	assertFalse(target.exists());
+    	ThumbnailGenerator.generateThumbnailFromVideo(source, target, 300);
+    	assertTrue(target.exists());
+    }
+
+    @Test
+    public void testGenerateThumbnailForMpeg() throws ThumbnailGeneratorException {
+    	File source = new File(baseFolder, "mpg.mpg"); 
+    	File target = new File(baseFolder, "mpg.jpg"); 
+    	assertFalse(target.exists());
+    	ThumbnailGenerator.generateThumbnailFromVideo(source, target, 300);
+    	assertTrue(target.exists());
+    }
+
 }
