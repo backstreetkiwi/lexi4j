@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.zaunkoenigweg.lexi4j</groupId>
-	<version>1.3.0</version>
+	<version>1.4.0-SNAPSHOT</version>
 	<artifactId>lexi4j</artifactId>
 	<name>Lexi4J</name>
 	<description>Lexi4J - Wrapping Linux EXIF tools in Java</description>
