@@ -125,7 +125,7 @@ public class Exiftool {
         @Override
         public void perform() {
             String params = this.updateValues.entrySet().stream()
-                            .map(entry -> String.format("-%s=\"%s\"", entry.getKey().getExiftoolParam(), StringUtils.replace(entry.getValue(), "\"", "\\\"")))
+                            .map(entry -> String.format("-%s=\"%s\"", entry.getKey().getExiftoolParam(), StringUtils.replaceEach(entry.getValue(), new String[] { "\\", "\"" }, new String[] { "\\\\", "\\\"" })))
                             .collect(Collectors.joining(" "));
 
             params = "-overwrite_original " + params;
