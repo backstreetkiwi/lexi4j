@@ -2,6 +2,7 @@ package de.zaunkoenigweg.lexi4j.exiftool;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.function.Function;
 
@@ -112,7 +113,7 @@ class ExifFieldType<T> {
             return null;
         }
         try {
-            return LocalDateTime.parse(in, EXIF_DATE_TIME_FORMATTER);
+            return LocalDateTime.parse(StringUtils.replaceChars(in, '-', ':'), EXIF_DATE_TIME_FORMATTER);
           } catch (DateTimeParseException e) {
             throw new IllegalArgumentException(String.format("Exif Datetime '%s' could not be parsed.", in));
           }
